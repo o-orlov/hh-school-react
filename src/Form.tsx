@@ -1,18 +1,15 @@
 import { FC, useState, useEffect } from 'react';
 
-import getRepositoryContributors from './gitHub';
+import { GitHubContributor, getRepositoryContributors } from './gitHub';
 
 const Form: FC = () => {
   const [login, setLogin] = useState<string>('');
   const [repo, setRepo] = useState<string>('');
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[] | null>(null);
 
   useEffect(() => {
-    setDisabled(!login && !repo);
-
-    // getRepositoryContributors(login, repo)
-    //   .then((data) => console.log(data))
-    //   .catch((error) => console.error(error));
+    setDisabled(!login || !repo);
   }, [login, repo]);
 
   return (
@@ -49,7 +46,14 @@ const Form: FC = () => {
       <input
         type="button"
         value="Search Reviewer"
-        disabled={!disabled}
+        disabled={disabled}
+        onClick={
+          () => {
+            getRepositoryContributors(login, repo)
+              .then((data) => setRepositoryContributors(data))
+              .catch((error) => console.error(error));
+          }
+        }
       />
     </form>
   );

@@ -1,4 +1,4 @@
-interface GitHubContributor {
+export interface GitHubContributor {
   login: string;
   id: number;
   avatar_url: string;
@@ -29,7 +29,7 @@ async function get(url: string): Promise<unknown | null> {
   return data;
 }
 
-async function getRepositoryContributors(login: string, repo: string): Promise<GitHubContributor[] | null> {
+export async function getRepositoryContributors(login: string, repo: string): Promise<GitHubContributor[] | null> {
   // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-contributors
   if (!login || !repo) {
     return null;
@@ -37,5 +37,3 @@ async function getRepositoryContributors(login: string, repo: string): Promise<G
 
   return get(`https://api.github.com/repos/${login}/${repo}/contributors`) as Promise<GitHubContributor[] | null>;
 };
-
-export default getRepositoryContributors;
