@@ -1,12 +1,19 @@
 import { FC, useState, useEffect } from 'react';
 
-import { GitHubContributor, getRepositoryContributors } from './gitHub';
+import User from './User';
 import Contributors from './Contributors';
+import {
+  GitHubUser,
+  getUser,
+  GitHubContributor,
+  getRepositoryContributors,
+} from './gitHub';
 
 const Form: FC = () => {
   const [login, setLogin] = useState<string>('');
   const [repo, setRepo] = useState<string>('');
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [user, setUser] = useState<GitHubUser | null>(null);
   const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
 
   useEffect(() => {
@@ -51,6 +58,10 @@ const Form: FC = () => {
           disabled={disabled}
           onClick={
             () => {
+              getUser(login)
+                .then((data) => setUser(data))
+                .catch((error) => console.error(error));
+
               getRepositoryContributors(login, repo)
                 .then((data) => setRepositoryContributors(data || []))
                 .catch((error) => console.error(error));
@@ -58,6 +69,7 @@ const Form: FC = () => {
           }
         />
       </form>
+      {user && <User user={user} />}
       {repositoryContributors?.length > 0 && <Contributors contributors={repositoryContributors} />}
     </div>
   );
