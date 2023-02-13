@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 
 import User from './User';
 import Contributors from './Contributors';
@@ -8,24 +8,34 @@ import {
   GitHubContributor,
   getRepositoryContributors,
 } from './gitHub';
+import useLocalStorage from './useLocalStorage';
+
+const LOGIN_STORAGE_KEY = 'login';
+const REPO_STORAGE_KEY = 'repo';
+const BLACKLIST_STORAGE_KEY = 'blacklist';
 
 const Form: FC = () => {
-  const [login, setLogin] = useState<string>('');
-  const [repo, setRepo] = useState<string>('');
-  const [disabled, setDisabled] = useState<boolean>(true);
+  const [login, setLogin] = useLocalStorage(LOGIN_STORAGE_KEY, '') as [string, React.Dispatch<React.SetStateAction<string>>];
+  const [repo, setRepo] = useLocalStorage(REPO_STORAGE_KEY, '') as [string, React.Dispatch<React.SetStateAction<string>>];
+  const [blacklist, setBlacklist] = useLocalStorage(BLACKLIST_STORAGE_KEY, '') as [string, React.Dispatch<React.SetStateAction<string>>];
+
+  const [disabled, setDisabled] = useState<boolean>(!login || !repo);
+
   const [user, setUser] = useState<GitHubUser | null>(null);
   const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
   const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
 
   useEffect(() => {
     setDisabled(!login || !repo);
+  }, [login, repo]);
 
-    if (!user || !repositoryContributors || repositoryContributors?.length === 1) {
+  useEffect(() => {
+    if (!user || repositoryContributors.length < 2) {
       return;
     }
 
     setReviewer(getRandomReviewer(user, repositoryContributors));
-  }, [login, repo, user, repositoryContributors]);
+  }, [user, repositoryContributors]);
 
   function getRandomReviewer(user: GitHubUser, contributors: GitHubContributor[]): GitHubContributor | null {
     const reviewers = contributors.filter((contributor) => contributor.id !== user.id);
@@ -46,6 +56,7 @@ const Form: FC = () => {
           <input
             type="text"
             name="login"
+            value={login}
             onInput={e => setLogin((e.target as HTMLInputElement).value)}
           />
         </label>
@@ -56,6 +67,7 @@ const Form: FC = () => {
           <input
             type="text"
             name="repo"
+            value={repo}
             onInput={e => setRepo((e.target as HTMLInputElement).value)}
           />
         </label>
@@ -92,7 +104,7 @@ const Form: FC = () => {
           <User user={user} />
         </div>
       )}
-      {repositoryContributors?.length > 0 && <Contributors contributors={repositoryContributors} />}
+      {repositoryContributors.length > 0 && <Contributors contributors={repositoryContributors} />}
       {reviewer && (
         <div>
           <h3>Random Reviewer</h3>
