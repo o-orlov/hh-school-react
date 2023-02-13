@@ -21,7 +21,7 @@ const Form: FC = () => {
           type="text"
           name="login"
           value={login}
-          onInput={e => setLogin((e.target as HTMLInputElement).value)}
+          onChange={e => setLogin((e.target as HTMLInputElement).value)}
         />
       </label>
       <br />
@@ -32,7 +32,7 @@ const Form: FC = () => {
           type="text"
           name="repo"
           value={repo}
-          onInput={e => setRepo((e.target as HTMLInputElement).value)}
+          onChange={e => setRepo((e.target as HTMLInputElement).value)}
         />
       </label>
       <br />
@@ -42,7 +42,7 @@ const Form: FC = () => {
         <textarea
           name="blacklist"
           value={blacklist}
-          onInput={e => setBlacklist((e.target as HTMLInputElement).value)}
+          onChange={e => setBlacklist((e.target as HTMLTextAreaElement).value)}
         />
       </label>
     </form>

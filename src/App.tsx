@@ -28,30 +28,41 @@ const App: FC = () => {
   const settings = { login, setLogin, repo, setRepo, blacklist, setBlacklist };
 
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [searchDisabled, setSearchDisabled] = useState<boolean>(true);
 
   const [user, setUser] = useState<GitHubUser | null>(null);
   const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
   const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
 
   useEffect(() => {
-    setSearchDisabled(!login || !repo);
-  }, [login, repo]);
-
-  useEffect(() => {
-    if (!user || repositoryContributors.length < 2) {
+    if (!login || user?.login === login) {
       return;
     }
 
-    setReviewer(getRandomReviewer(user, repositoryContributors, blacklist));
-  }, [user, repositoryContributors, blacklist]);
+    getUser(login)
+      .then((data) => setUser(data))
+      .catch((error) => console.error(error));
+  }, [login, user]);
+
+  useEffect(() => {
+    if (!login || !repo) {
+      return;
+    }
+
+    getRepositoryContributors(login, repo)
+      .then((data) => setRepositoryContributors(data ?? []))
+      .catch((error) => console.error(error));
+  }, [login, repo]);
 
   function getRandomReviewer(
       user: GitHubUser,
       contributors: GitHubContributor[],
       blacklist: string | undefined,
   ): GitHubContributor | null {
-    const reviewers = contributors.filter((contributor) => contributor.id !== user.id);
+    const blacklist_values = blacklist?.split(',').map((value) => value.trim()) ?? [];
+    const reviewers = contributors.filter((contributor) => (
+      contributor.id !== user.id
+      && blacklist_values.indexOf(contributor.login) < 0
+    ));
 
     if (!reviewers) {
       return null;
@@ -62,7 +73,7 @@ const App: FC = () => {
 
   return (
     <div>
-      <button onClick={() => setSettingsVisible(!settingsVisible)} type="button">Settings</button>
+      <button onClick={() => setSettingsVisible(!settingsVisible)}>Settings</button>
       {settingsVisible && (
         <SettingsContext.Provider value={settings}>
           <SettingsForm />
@@ -70,20 +81,13 @@ const App: FC = () => {
       )}
       <br />
       <button
-        disabled={searchDisabled}
         onClick={
           () => {
-            if (!settings) {
-              return;
+            if (!user || repositoryContributors.length < 1) {
+              setReviewer(null);
+            } else {
+              setReviewer(getRandomReviewer(user, repositoryContributors, blacklist));
             }
-
-            getUser(settings.login)
-              .then((data) => setUser(data))
-              .catch((error) => console.error(error));
-
-            getRepositoryContributors(settings.login, settings.repo)
-              .then((data) => setRepositoryContributors(data || []))
-              .catch((error) => console.error(error));
           }
         }
       >
