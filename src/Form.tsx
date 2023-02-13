@@ -15,10 +15,27 @@ const Form: FC = () => {
   const [disabled, setDisabled] = useState<boolean>(true);
   const [user, setUser] = useState<GitHubUser | null>(null);
   const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
+  const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
 
   useEffect(() => {
     setDisabled(!login || !repo);
-  }, [login, repo]);
+
+    if (!user || !repositoryContributors || repositoryContributors?.length === 1) {
+      return;
+    }
+
+    setReviewer(getRandomReviewer(user, repositoryContributors));
+  }, [login, repo, user, repositoryContributors]);
+
+  function getRandomReviewer(user: GitHubUser, contributors: GitHubContributor[]): GitHubContributor | null {
+    const reviewers = contributors.filter((contributor) => contributor.id !== user.id);
+
+    if (!reviewers) {
+      return null;
+    }
+
+    return reviewers[Math.floor(Math.random() * reviewers.length)];
+  }
 
   return (
     <div>
@@ -69,8 +86,19 @@ const Form: FC = () => {
           }
         />
       </form>
-      {user && <User user={user} />}
+      {user && (
+        <div>
+          <h3>Current User</h3>
+          <User user={user} />
+        </div>
+      )}
       {repositoryContributors?.length > 0 && <Contributors contributors={repositoryContributors} />}
+      {reviewer && (
+        <div>
+          <h3>Random Reviewer</h3>
+          <User user={reviewer} />
+        </div>
+      )}
     </div>
   );
 }
