@@ -12,7 +12,7 @@ import {
   getRepositoryContributors,
 } from './gitHub';
 
-export const enum StorageKey {
+const enum StorageKey {
   LOGIN = 'login',
   REPO = 'repo',
   BLACKLIST = 'blacklist',
