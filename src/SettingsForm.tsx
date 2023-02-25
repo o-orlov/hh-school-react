@@ -1,20 +1,15 @@
 import { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-import useLocalStorage, { StorageKey } from './useLocalStorage';
+import { RootState } from './store/store';
 import {
   updateLoginSetting,
   updateRepoSetting,
   updateBlacklistSetting,
 } from './store/actionCreators/settings';
 
-type StringState = [string, React.Dispatch<React.SetStateAction<string>>];
-
 const Form: FC = () => {
-  const [login, setLogin] = useLocalStorage(StorageKey.LOGIN, '') as StringState;
-  const [repo, setRepo] = useLocalStorage(StorageKey.REPO, '') as StringState;
-  const [blacklist, setBlacklist] = useLocalStorage(StorageKey.BLACKLIST, '') as StringState;
-
+  const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
 
   return (
@@ -28,7 +23,6 @@ const Form: FC = () => {
           value={login}
           onChange={e => {
             const value = (e.target as HTMLInputElement).value;
-            setLogin(value);
             dispatch(updateLoginSetting(value));
           }}
         />
@@ -43,7 +37,6 @@ const Form: FC = () => {
           value={repo}
           onChange={e => {
             const value = (e.target as HTMLInputElement).value;
-            setRepo(value);
             dispatch(updateRepoSetting(value));
           }}
         />
@@ -57,7 +50,6 @@ const Form: FC = () => {
           value={blacklist}
           onChange={e => {
             const value = (e.target as HTMLTextAreaElement).value;
-            setBlacklist(value);
             dispatch(updateBlacklistSetting(value));
           }}
         />

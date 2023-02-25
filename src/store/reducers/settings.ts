@@ -10,6 +10,7 @@ import {
 }
 from '../actions/settings';
 import initialState from '../initialState';
+import { StorageKey, setItemToStorage } from '../../useLocalStorage';
 
 export interface Settings {
   login: string;
@@ -26,10 +27,13 @@ const settings: Reducer<
 ) => {
   switch (type) {
     case UPDATE_LOGIN_SETTING_ACTION:
+      setItemToStorage(StorageKey.LOGIN, payload);
       return { ...state, login: payload };
     case UPDATE_REPO_SETTING_ACTION:
+      setItemToStorage(StorageKey.REPO, payload);
       return { ...state, repo: payload };
     case UPDATE_BLACKLIST_SETTING_ACTION:
+      setItemToStorage(StorageKey.BLACKLIST, payload);
       return { ...state, blacklist: payload };
     default:
       return state;

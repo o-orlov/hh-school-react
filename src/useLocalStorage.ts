@@ -18,7 +18,7 @@ export function getItemFromStorage(key: string): unknown | null {
   return null;
 }
 
-function setItemToStorage(key: string, value: unknown): void {
+export function setItemToStorage(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
