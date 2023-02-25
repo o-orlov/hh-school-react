@@ -9,18 +9,19 @@ import {
   UpdateBlacklistSettingAction,
 }
 from '../actions/settings';
+import initialState from '../initialState';
 
 export interface Settings {
-  login: string,
-  repo: string,
-  blacklist: string,
+  login: string;
+  repo: string;
+  blacklist: string;
 }
 
 const settings: Reducer<
-  Settings | {},
+  Settings,
   UpdateLoginSettingAction | UpdateRepoSettingAction | UpdateBlacklistSettingAction
 > = (
-  state = {},
+  state = initialState.settings,
   { type, payload }
 ) => {
   switch (type) {

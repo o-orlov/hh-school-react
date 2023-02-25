@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
-import useLocalStorage from './useLocalStorage';
-import SettingsContext from "./SettingsContext";
+import { RootState } from './store/store';
 import SettingsForm from './SettingsForm';
 import User from './User';
 import Contributors from './Contributors';
@@ -13,20 +13,8 @@ import {
 } from './gitHub';
 import getRandomReviewer from './getRandomReviewer';
 
-const enum StorageKey {
-  LOGIN = 'login',
-  REPO = 'repo',
-  BLACKLIST = 'blacklist',
-};
-
-type StringState = [string, React.Dispatch<React.SetStateAction<string>>];
-
 const App: FC = () => {
-  const [login, setLogin] = useLocalStorage(StorageKey.LOGIN, '') as StringState;
-  const [repo, setRepo] = useLocalStorage(StorageKey.REPO, '') as StringState;
-  const [blacklist, setBlacklist] = useLocalStorage(StorageKey.BLACKLIST, '') as StringState;
-
-  const settings = { login, setLogin, repo, setRepo, blacklist, setBlacklist };
+  const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
 
   const [settingsVisible, setSettingsVisible] = useState(false);
 
@@ -58,9 +46,7 @@ const App: FC = () => {
     <div>
       <button onClick={() => setSettingsVisible(!settingsVisible)}>Settings</button>
       {settingsVisible && (
-        <SettingsContext.Provider value={settings}>
-          <SettingsForm />
-        </SettingsContext.Provider>
+        <SettingsForm />
       )}
       <br />
       <button

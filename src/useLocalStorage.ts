@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 
-function getItemFromStorage(key: string): unknown | null {
+export const enum StorageKey {
+  LOGIN = 'login',
+  REPO = 'repo',
+  BLACKLIST = 'blacklist',
+};
+
+export function getItemFromStorage(key: string): unknown | null {
   const item = localStorage.getItem(key);
   if (item !== null) {
     try {

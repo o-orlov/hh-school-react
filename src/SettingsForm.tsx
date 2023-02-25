@@ -1,16 +1,21 @@
-import { FC, useContext } from 'react';
+import { FC } from 'react';
+import { useDispatch } from 'react-redux';
 
-import SettingsContext from "./SettingsContext";
+import useLocalStorage, { StorageKey } from './useLocalStorage';
+import {
+  updateLoginSetting,
+  updateRepoSetting,
+  updateBlacklistSetting,
+} from './store/actionCreators/settings';
+
+type StringState = [string, React.Dispatch<React.SetStateAction<string>>];
 
 const Form: FC = () => {
-  const {
-    login,
-    setLogin,
-    repo,
-    setRepo,
-    blacklist,
-    setBlacklist
-  } = useContext(SettingsContext);
+  const [login, setLogin] = useLocalStorage(StorageKey.LOGIN, '') as StringState;
+  const [repo, setRepo] = useLocalStorage(StorageKey.REPO, '') as StringState;
+  const [blacklist, setBlacklist] = useLocalStorage(StorageKey.BLACKLIST, '') as StringState;
+
+  const dispatch = useDispatch();
 
   return (
     <form>
@@ -21,7 +26,11 @@ const Form: FC = () => {
           type="text"
           name="login"
           value={login}
-          onChange={e => setLogin((e.target as HTMLInputElement).value)}
+          onChange={e => {
+            const value = (e.target as HTMLInputElement).value;
+            setLogin(value);
+            dispatch(updateLoginSetting(value));
+          }}
         />
       </label>
       <br />
@@ -32,7 +41,11 @@ const Form: FC = () => {
           type="text"
           name="repo"
           value={repo}
-          onChange={e => setRepo((e.target as HTMLInputElement).value)}
+          onChange={e => {
+            const value = (e.target as HTMLInputElement).value;
+            setRepo(value);
+            dispatch(updateRepoSetting(value));
+          }}
         />
       </label>
       <br />
@@ -42,7 +55,11 @@ const Form: FC = () => {
         <textarea
           name="blacklist"
           value={blacklist}
-          onChange={e => setBlacklist((e.target as HTMLTextAreaElement).value)}
+          onChange={e => {
+            const value = (e.target as HTMLTextAreaElement).value;
+            setBlacklist(value);
+            dispatch(updateBlacklistSetting(value));
+          }}
         />
       </label>
     </form>
