@@ -11,6 +11,7 @@ import {
   GitHubContributor,
   getRepositoryContributors,
 } from './gitHub';
+import getRandomReviewer from './getRandomReviewer';
 
 const enum StorageKey {
   LOGIN = 'login',
@@ -52,24 +53,6 @@ const App: FC = () => {
       .then((data) => setRepositoryContributors(data ?? []))
       .catch((error) => console.error(error));
   }, [login, repo]);
-
-  function getRandomReviewer(
-      user: GitHubUser,
-      contributors: GitHubContributor[],
-      blacklist: string | undefined,
-  ): GitHubContributor | null {
-    const blacklist_values = blacklist?.split(',').map((value) => value.trim()) ?? [];
-    const reviewers = contributors.filter((contributor) => (
-      contributor.id !== user.id
-      && blacklist_values.indexOf(contributor.login) < 0
-    ));
-
-    if (!reviewers) {
-      return null;
-    }
-
-    return reviewers[Math.floor(Math.random() * reviewers.length)];
-  }
 
   return (
     <div>
