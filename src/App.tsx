@@ -1,26 +1,26 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from './store/store';
 import SettingsForm from './SettingsForm';
 import User from './User';
 import Contributors from './Contributors';
-import { GitHubContributor } from './gitHub';
 import getRandomReviewer from './getRandomReviewer';
 import fetchGitHubUser, { InnerFetchGitHubUser } from './fetchGitHubUser';
 import fetchRepositoryContributors, { InnerFetchRepositoryContributors } from './fetchRepositoryContributors';
 import { setSettingsVisible } from './store/actionCreators/settingsVisible';
 import { SetSettingsVisibleAction } from './store/actions/settingsVisible';
+import { SetReviewerAction } from './store/actions/reviewer';
+import { setReviewer } from './store/actionCreators/reviewer';
 
 const App: FC = () => {
   const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
   const settingsVisible = useSelector((state: RootState) => state.settingsVisible);
   const user = useSelector((state: RootState) => state.gitHubUser);
   const repositoryContributors = useSelector((state: RootState) => state.repositoryContributors);
+  const reviewer = useSelector((state: RootState) => state.reviewer);
 
-  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser | InnerFetchRepositoryContributors | SetSettingsVisibleAction) => Promise<void>;
-
-  const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
+  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser | InnerFetchRepositoryContributors | SetSettingsVisibleAction | SetReviewerAction) => Promise<void>;
 
   useEffect(() => {
     if (!login) {
@@ -48,11 +48,11 @@ const App: FC = () => {
       <button
         onClick={
           () => {
-            if (!user || repositoryContributors.length < 1) {
-              setReviewer(null);
-            } else {
-              setReviewer(getRandomReviewer(user, repositoryContributors, blacklist));
+            let reviewer = null;
+            if (user && repositoryContributors.length > 1) {
+              reviewer = getRandomReviewer(user, repositoryContributors, blacklist);
             }
+            dispatch(setReviewer(reviewer));
           }
         }
       >

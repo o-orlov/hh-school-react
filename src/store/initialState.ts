@@ -9,6 +9,7 @@ const initialState = {
   settingsVisible: false,
   gitHubUser: null,
   repositoryContributors: [],
+  reviewer: null,
 };
 
 export default initialState;
