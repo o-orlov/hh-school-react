@@ -9,8 +9,6 @@ import getRandomReviewer from './getRandomReviewer';
 import fetchGitHubUser, { InnerFetchGitHubUser } from './fetchGitHubUser';
 import fetchRepositoryContributors, { InnerFetchRepositoryContributors } from './fetchRepositoryContributors';
 import { setSettingsVisible } from './store/actionCreators/settingsVisible';
-import { SetSettingsVisibleAction } from './store/actions/settingsVisible';
-import { SetReviewerAction } from './store/actions/reviewer';
 import { setReviewer } from './store/actionCreators/reviewer';
 
 const App: FC = () => {
@@ -20,14 +18,14 @@ const App: FC = () => {
   const repositoryContributors = useSelector((state: RootState) => state.repositoryContributors);
   const reviewer = useSelector((state: RootState) => state.reviewer);
 
-  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser | InnerFetchRepositoryContributors | SetSettingsVisibleAction | SetReviewerAction) => Promise<void>;
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!login) {
       return;
     }
 
-    dispatch(fetchGitHubUser(login));
+    (dispatch as (fn: InnerFetchGitHubUser) => Promise<void>)(fetchGitHubUser(login));
   }, [login, dispatch]);
 
   useEffect(() => {
@@ -35,7 +33,7 @@ const App: FC = () => {
       return;
     }
 
-    dispatch(fetchRepositoryContributors(login, repo));
+    (dispatch as (fn: InnerFetchRepositoryContributors) => Promise<void>)(fetchRepositoryContributors(login, repo));
   }, [login, repo, dispatch]);
 
   return (
