@@ -16,7 +16,7 @@ export type FetchRepositoryContributors = (login: string, repo: string) => Inner
 function fetchRepositoryContributors(login: string, repo: string): InnerFetchRepositoryContributors {
   function innerFetchRepositoryContributors(dispatch: Dispatch, getState: () => RootState): Return {
     return getRepositoryContributors(login, repo)
-      .then((data) => setRepositoryContributors(data ?? []))
+      .then((data) => dispatch(setRepositoryContributors(data ?? [])))
       .catch((error) => console.error(error));
   }
   return innerFetchRepositoryContributors;
