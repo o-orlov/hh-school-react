@@ -9,15 +9,16 @@ import { GitHubContributor } from './gitHub';
 import getRandomReviewer from './getRandomReviewer';
 import fetchGitHubUser, { InnerFetchGitHubUser } from './fetchGitHubUser';
 import fetchRepositoryContributors, { InnerFetchRepositoryContributors } from './fetchRepositoryContributors';
+import { setSettingsVisible } from './store/actionCreators/settingsVisible';
+import { SetSettingsVisibleAction } from './store/actions/settingsVisible';
 
 const App: FC = () => {
   const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
-
-  const [settingsVisible, setSettingsVisible] = useState(false);
-
+  const settingsVisible = useSelector((state: RootState) => state.settingsVisible);
   const user = useSelector((state: RootState) => state.gitHubUser);
   const repositoryContributors = useSelector((state: RootState) => state.repositoryContributors);
-  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser | InnerFetchRepositoryContributors) => Promise<void>;
+
+  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser | InnerFetchRepositoryContributors | SetSettingsVisibleAction) => Promise<void>;
 
   const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
 
@@ -39,7 +40,7 @@ const App: FC = () => {
 
   return (
     <div>
-      <button onClick={() => setSettingsVisible(!settingsVisible)}>Settings</button>
+      <button onClick={() => dispatch(setSettingsVisible(!settingsVisible))}>Settings</button>
       {settingsVisible && (
         <SettingsForm />
       )}

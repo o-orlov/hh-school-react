@@ -6,6 +6,7 @@ const initialState = {
     repo: getItemFromStorage(StorageKey.REPO) as string ?? '',
     blacklist: getItemFromStorage(StorageKey.BLACKLIST) as string ?? '',
   },
+  settingsVisible: false,
   gitHubUser: null,
   repositoryContributors: [],
 };
