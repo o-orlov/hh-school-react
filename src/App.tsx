@@ -1,76 +1,56 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import useLocalStorage from './useLocalStorage';
-import SettingsContext from "./SettingsContext";
+import { RootState } from './store/store';
 import SettingsForm from './SettingsForm';
 import User from './User';
 import Contributors from './Contributors';
-import {
-  GitHubUser,
-  getUser,
-  GitHubContributor,
-  getRepositoryContributors,
-} from './gitHub';
 import getRandomReviewer from './getRandomReviewer';
-
-const enum StorageKey {
-  LOGIN = 'login',
-  REPO = 'repo',
-  BLACKLIST = 'blacklist',
-};
-
-type StringState = [string, React.Dispatch<React.SetStateAction<string>>];
+import fetchGitHubUser, { InnerFetchGitHubUser } from './fetchGitHubUser';
+import fetchRepositoryContributors, { InnerFetchRepositoryContributors } from './fetchRepositoryContributors';
+import { setSettingsVisible } from './store/actionCreators/settingsVisible';
+import { setReviewer } from './store/actionCreators/reviewer';
 
 const App: FC = () => {
-  const [login, setLogin] = useLocalStorage(StorageKey.LOGIN, '') as StringState;
-  const [repo, setRepo] = useLocalStorage(StorageKey.REPO, '') as StringState;
-  const [blacklist, setBlacklist] = useLocalStorage(StorageKey.BLACKLIST, '') as StringState;
+  const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
+  const settingsVisible = useSelector((state: RootState) => state.settingsVisible);
+  const user = useSelector((state: RootState) => state.gitHubUser);
+  const repositoryContributors = useSelector((state: RootState) => state.repositoryContributors);
+  const reviewer = useSelector((state: RootState) => state.reviewer);
 
-  const settings = { login, setLogin, repo, setRepo, blacklist, setBlacklist };
-
-  const [settingsVisible, setSettingsVisible] = useState(false);
-
-  const [user, setUser] = useState<GitHubUser | null>(null);
-  const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
-  const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!login || user?.login === login) {
+    if (!login) {
       return;
     }
 
-    getUser(login)
-      .then((data) => setUser(data))
-      .catch((error) => console.error(error));
-  }, [login, user]);
+    (dispatch as (fn: InnerFetchGitHubUser) => Promise<void>)(fetchGitHubUser(login));
+  }, [login, dispatch]);
 
   useEffect(() => {
     if (!login || !repo) {
       return;
     }
 
-    getRepositoryContributors(login, repo)
-      .then((data) => setRepositoryContributors(data ?? []))
-      .catch((error) => console.error(error));
-  }, [login, repo]);
+    (dispatch as (fn: InnerFetchRepositoryContributors) => Promise<void>)(fetchRepositoryContributors(login, repo));
+  }, [login, repo, dispatch]);
 
   return (
     <div>
-      <button onClick={() => setSettingsVisible(!settingsVisible)}>Settings</button>
+      <button onClick={() => dispatch(setSettingsVisible(!settingsVisible))}>Settings</button>
       {settingsVisible && (
-        <SettingsContext.Provider value={settings}>
-          <SettingsForm />
-        </SettingsContext.Provider>
+        <SettingsForm />
       )}
       <br />
       <button
         onClick={
           () => {
-            if (!user || repositoryContributors.length < 1) {
-              setReviewer(null);
-            } else {
-              setReviewer(getRandomReviewer(user, repositoryContributors, blacklist));
+            let reviewer = null;
+            if (user && repositoryContributors.length > 1) {
+              reviewer = getRandomReviewer(user, repositoryContributors, blacklist);
             }
+            dispatch(setReviewer(reviewer));
           }
         }
       >

@@ -1,16 +1,16 @@
-import { FC, useContext } from 'react';
+import { FC } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import SettingsContext from "./SettingsContext";
+import { RootState } from './store/store';
+import {
+  updateLoginSetting,
+  updateRepoSetting,
+  updateBlacklistSetting,
+} from './store/actionCreators/settings';
 
 const Form: FC = () => {
-  const {
-    login,
-    setLogin,
-    repo,
-    setRepo,
-    blacklist,
-    setBlacklist
-  } = useContext(SettingsContext);
+  const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
+  const dispatch = useDispatch();
 
   return (
     <form>
@@ -21,7 +21,10 @@ const Form: FC = () => {
           type="text"
           name="login"
           value={login}
-          onChange={e => setLogin((e.target as HTMLInputElement).value)}
+          onChange={e => {
+            const value = (e.target as HTMLInputElement).value;
+            dispatch(updateLoginSetting(value));
+          }}
         />
       </label>
       <br />
@@ -32,7 +35,10 @@ const Form: FC = () => {
           type="text"
           name="repo"
           value={repo}
-          onChange={e => setRepo((e.target as HTMLInputElement).value)}
+          onChange={e => {
+            const value = (e.target as HTMLInputElement).value;
+            dispatch(updateRepoSetting(value));
+          }}
         />
       </label>
       <br />
@@ -42,7 +48,10 @@ const Form: FC = () => {
         <textarea
           name="blacklist"
           value={blacklist}
-          onChange={e => setBlacklist((e.target as HTMLTextAreaElement).value)}
+          onChange={e => {
+            const value = (e.target as HTMLTextAreaElement).value;
+            dispatch(updateBlacklistSetting(value));
+          }}
         />
       </label>
     </form>
