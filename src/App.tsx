@@ -5,12 +5,10 @@ import { RootState } from './store/store';
 import SettingsForm from './SettingsForm';
 import User from './User';
 import Contributors from './Contributors';
-import {
-  GitHubContributor,
-  getRepositoryContributors,
-} from './gitHub';
+import { GitHubContributor } from './gitHub';
 import getRandomReviewer from './getRandomReviewer';
 import fetchGitHubUser, { InnerFetchGitHubUser } from './fetchGitHubUser';
+import fetchRepositoryContributors, { InnerFetchRepositoryContributors } from './fetchRepositoryContributors';
 
 const App: FC = () => {
   const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
@@ -18,10 +16,10 @@ const App: FC = () => {
   const [settingsVisible, setSettingsVisible] = useState(false);
 
   const user = useSelector((state: RootState) => state.gitHubUser);
-  const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
-  const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
+  const repositoryContributors = useSelector((state: RootState) => state.repositoryContributors);
+  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser | InnerFetchRepositoryContributors) => Promise<void>;
 
-  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser) => void;
+  const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
 
   useEffect(() => {
     if (!login) {
@@ -36,10 +34,8 @@ const App: FC = () => {
       return;
     }
 
-    getRepositoryContributors(login, repo)
-      .then((data) => setRepositoryContributors(data ?? []))
-      .catch((error) => console.error(error));
-  }, [login, repo]);
+    dispatch(fetchRepositoryContributors(login, repo));
+  }, [login, repo, dispatch]);
 
   return (
     <div>

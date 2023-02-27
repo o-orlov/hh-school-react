@@ -15,8 +15,8 @@ export type FetchGitHubUser = (login: string) => InnerFetchGitHubUser;
 function fetchGitHubUser(login: string): InnerFetchGitHubUser {
   function innerFetchGitHubUser(dispatch: Dispatch, getState: () => RootState): Promise<void | SetGitHubUserAction> {
     return getUser(login)
-      .then(data => dispatch(setGitHubUser(data)))
-      .catch(error => console.error(error));
+      .then((data) => dispatch(setGitHubUser(data)))
+      .catch((error) => console.error(error));
   };
   return innerFetchGitHubUser;
 };
