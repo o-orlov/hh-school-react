@@ -1,36 +1,35 @@
 import { FC, useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from './store/store';
 import SettingsForm from './SettingsForm';
 import User from './User';
 import Contributors from './Contributors';
 import {
-  GitHubUser,
-  getUser,
   GitHubContributor,
   getRepositoryContributors,
 } from './gitHub';
 import getRandomReviewer from './getRandomReviewer';
+import fetchGitHubUser, { InnerFetchGitHubUser } from './fetchGitHubUser';
 
 const App: FC = () => {
   const { login, repo, blacklist } = useSelector((state: RootState) => state.settings);
 
   const [settingsVisible, setSettingsVisible] = useState(false);
 
-  const [user, setUser] = useState<GitHubUser | null>(null);
+  const user = useSelector((state: RootState) => state.gitHubUser);
   const [repositoryContributors, setRepositoryContributors] = useState<GitHubContributor[]>([]);
   const [reviewer, setReviewer] = useState<GitHubContributor | null>(null);
 
+  const dispatch = useDispatch() as (fn: InnerFetchGitHubUser) => void;
+
   useEffect(() => {
-    if (!login || user?.login === login) {
+    if (!login) {
       return;
     }
 
-    getUser(login)
-      .then((data) => setUser(data))
-      .catch((error) => console.error(error));
-  }, [login, user]);
+    dispatch(fetchGitHubUser(login));
+  }, [login, dispatch]);
 
   useEffect(() => {
     if (!login || !repo) {
